@@ -8,12 +8,12 @@ using MyShop.Core.Models;
 
 namespace MyShop.DataAccess.Memory
 {
-    public class ProductRepositroy
+    public class ProductRepository
     {
         ObjectCache cache = MemoryCache.Default;
-        List<Product> products = new List<Product>();
+        List<Product> products;
 
-        public ProductRepositroy()
+        public ProductRepository()
         {
             products = cache["products"] as List<Product>;
             if (products == null)
@@ -22,64 +22,61 @@ namespace MyShop.DataAccess.Memory
             }
         }
 
-            public void Commit()
+        public void Commit()
+        {
+            cache["products"] = products;
+        }
+
+        public void Insert(Product p)
+        {
+            products.Add(p);
+        }
+
+        public void Update(Product product)
+        {
+            Product productToUpdate = products.Find(p => p.ID == product.ID);
+
+            if (productToUpdate != null)
             {
-                cache["products"] = products;
+                productToUpdate = product;
             }
-
-            public void Insert(Product p)
+            else
             {
-                products.Add(p);
+                throw new Exception("Product no found");
             }
+        }
 
-            public void Update(Product product)
+        public Product Find(string Id)
+        {
+            Product product = products.Find(p => p.ID == Id);
+
+            if (product != null)
             {
-                Product productToUpdate = products.Find(p => p.ID == product.ID);
-
-                if (productToUpdate != null)
-                {
-                    productToUpdate = product;
-                }
-                else
-                {
-                    throw new Exception("Product not found");
-                }
-
-
+                return product;
             }
-
-            public Product Find(string ID)
+            else
             {
-                Product productToFind = products.Find(p => p.ID == ID);
-
-                if (productToFind != null)
-                {
-                    return productToFind;
-                }
-                else
-                {
-                    throw new Exception("Product not found");
-                }
+                throw new Exception("Product no found");
             }
+        }
 
-            public IQueryable<Product> Collection()
+        public IQueryable<Product> Collection()
+        {
+            return products.AsQueryable();
+        }
+
+        public void Delete(string Id)
+        {
+            Product productToDelete = products.Find(p => p.ID == Id);
+
+            if (productToDelete != null)
             {
-                return products.AsQueryable();
+                products.Remove(productToDelete);
             }
-
-            public void Delete(string ID)
+            else
             {
-                Product productToDelete = products.Find(p => p.ID == ID);
-
-                if (productToDelete != null)
-                {
-                    products.Remove(productToDelete);
-                }
-                else
-                {
-                    throw new Exception("Product not found");
-                }
+                throw new Exception("Product no found");
             }
-
-     }
+        }
+    }
 }
