@@ -2,12 +2,14 @@
 using MyShop.DataAccess.Memory;
 using System;
 using Microsoft.AspNetCore.Mvc;
+using MyShop.Core.ViewModels;
 
 namespace MyShop.WebUI.Controllers
 {
     public class ProductManegerController : Controller
     {
         ProductRepository context;
+        ProductCategoryRepository productCategories;
 
         public IActionResult HttpException()
         {
@@ -17,6 +19,7 @@ namespace MyShop.WebUI.Controllers
         public ProductManegerController()
         {
             context = new ProductRepository();
+            productCategories = new ProductCategoryRepository();
         }
 
         public IActionResult Index()
@@ -28,8 +31,10 @@ namespace MyShop.WebUI.Controllers
 
         public IActionResult Create()
         {
-            Product product = new Product();
-            return View(product);
+            ProductManagerViewModel vieWmodel = new ProductManagerViewModel();
+            vieWmodel.Product = new Product();
+            vieWmodel.ProductCategories = productCategories.Collection();
+            return View(vieWmodel);
         }
         [HttpPost]
         public IActionResult Create(Product product)
@@ -49,14 +54,17 @@ namespace MyShop.WebUI.Controllers
 
         public IActionResult Edit(string ID)
         {
+
             Product product = context.Find(ID);
             if (product == null)
             {
                 return HttpException();
             }
             else{
-            
-                return View(product);            
+                ProductManagerViewModel viewModel = new ProductManagerViewModel();
+                viewModel.Product = product;
+                viewModel.ProductCategories = productCategories.Collection();
+                return View(viewModel);            
             }
         }
 
